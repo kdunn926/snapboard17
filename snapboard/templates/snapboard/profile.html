@@ -1,0 +1,58 @@
+{% load i18n %}
+{% load staticfiles %}
+{% load ratings_tags %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="{% static 'jquery.js' %}" type="text/javascript"></script>
+        <script src="{% static 'jquery-ui.js' %}" type="text/javascript"></script>
+        <link href="{% static 'jquery.rating.css' %}" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="{% static 'jquery.rating.pack.js' %}"></script>
+    
+        <title>{{ APP_NAME }}</title>
+    </head>
+
+    <body>
+        {% if user.is_authenticated  %}
+            <h1>{{ APP_NAME }} profile for {{ username }}</h1>
+            {% if userid == user.id|stringformat:"s" %}
+                <!-- Allow them to edit -->
+                <h4>Edit your profile:</h4>
+                {% get_rating_score for username as score %}
+                {% if score %}
+                    <p>Average score: {{ score.average|floatformat }} </p>
+                    <p>Number of votes: {{ score.num_votes }} </p>
+                {% else %}
+                    No rating.
+                {% endif %}
+            {% else %}
+                <!-- Show profile -->
+   
+                {% get_rating_score for inst as score %}
+                {% if score %}
+                    <p>Average score: {{ score.average|floatformat }} </p>
+                    <p>Number of votes: {{ score.num_votes }} </p>
+                {% else %}
+                    No rating.
+                {% endif %}
+      
+                {% get_rating_form for inst as rating_form %}
+                
+                <form id="ratem" action="{% url 'ratings_vote' %}" method="post">
+                    {% csrf_token %}
+                    {{ rating_form }}
+                    <script type="text/javascript"> 
+                        $(document).bind('star_change', function(event, value) {
+                            $( "#ratem" ).submit();
+                        });
+                        $(document).bind('star_delete', function(event, value) {
+                            $( "#ratem" ).submit();
+                        });
+                    </script>
+                </form>
+            {% endif %}
+        {% endif %}
+
+    </body>
+</html>

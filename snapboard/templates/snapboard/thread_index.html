@@ -1,0 +1,58 @@
+{% extends "snapboard/base_forum.html" %}
+{% load i18n pagination_tags %}
+{% load extras %}
+
+{% block snapboard_main %}
+    <div class="index_title">
+    <h2 style="font-size: 152%;">
+    {{ title }}
+    </h2>
+        {% autopaginate threads user_settings.tpp %}
+        {% paginate %}
+    </div>
+
+    {% if threads %}
+        {% for thread in threads %}
+        <div class="thread">
+            <p style-old="margin-top: 10px; margin-bottom: 5px;">
+                {{ thread.rating }} &mdash;
+                <span style-old="color: #999; font-size: small; float:right;" class="threadAuthor">
+                    <a href="/accounts/{{ thread.starter_id }}" ><b>{{ thread.starter }}</b></a> &mdash;
+                </span>
+                <span style-old="font-size: 100%;">
+                    <i class="threadSubject">
+                        {% if thread.gsticky %}
+                            {% trans "STICKY" %}
+			{% else %}
+                            {% if category and thread.csticky %}
+                            {% trans "STICKY" %}
+                            {% endif %}
+                        {% endif %}
+                        {% if thread.closed %}
+                            {% trans "CLOSED" %}
+                        {% endif %}
+                        <a href="{% url 'snapboard_thread' thread.id %}">{{ thread.subject }}</a>
+                    </i>
+                </span>
+                &mdash;
+                <span class="datetime">{{ thread.date|date:'N j, Y, P' }}</span>
+                &mdash;
+                <span style="color: #888; /*padding-left: 2em;*/ font-size:small;">
+                {% trans "city" %}:
+                <a href="{% url 'snapboard_category_thread_index' thread.category.id %}">
+                    {{ thread.category }}
+                </a>
+            </span>
+            </p>
+            
+        </div>
+        {% endfor %}
+        {% paginate %}{# XXX It's inefficient calling that twice for the same result #}
+
+    {% else %}
+        <p>{% trans "No threads are available." %}</p>
+    {% endif %}
+{% endblock %}
+<!--
+vim: ai ts=4 sts=4 et sw=4 
+-->
